@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RISC Pipeline & Cache Performance Simulator</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================================
+         SPACE BACKGROUND
+    ========================================== -->
+
+    <canvas id="spaceCanvas"></canvas>
+
+
+    <!-- =========================================
+         NAVIGATION
+    ========================================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            <span>◈</span> RISC<span>SIM</span>
+        </div>
+
+        <div class="nav-links">
+
+            <a href="#home">Home</a>
+            <a href="#problem">Problem</a>
+            <a href="#pipeline">Pipeline</a>
+            <a href="#hazards">Hazards</a>
+            <a href="#forwarding">Forwarding</a>
+            <a href="#cache">Cache</a>
+            <a href="#performance">Performance</a>
+
+        </div>
+
+        <button class="nav-btn" onclick="runSimulation()">
+            RUN SIMULATION
+        </button>
+
+    </nav>
+
+
+
+    <!-- =========================================
+         HERO
+    ========================================== -->
+
+    <section id="home" class="hero">
+
+        <div class="hero-content">
+
+            <div class="badge">
+                ● COMPUTER ARCHITECTURE SIMULATOR
+            </div>
+
+            <h1>
+                RISC
+                <span>PIPELINE</span>
+                SIMULATOR
+            </h1>
+
+            <h2>
+                & Cache Performance Analyzer
+            </h2>
+
+            <p>
+                Analyze a 5-stage RISC processor pipeline with
+                RAW hazard detection, forwarding, pipeline stalls,
+                L1 cache behavior, CPI, speedup and throughput.
+            </p>
+
+            <div class="hero-buttons">
+
+                <button class="primary-btn" onclick="runSimulation()">
+                    ▶ START SIMULATION
+                </button>
+
+                <button class="secondary-btn"
+                    onclick="scrollToSection('pipeline')">
+                    EXPLORE ARCHITECTURE
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =====================================
+             3D PROCESSOR
+        ====================================== -->
+
+        <div class="processor-scene">
+
+            <div class="processor">
+
+                <div class="cpu-top">
+
+                    <div class="cpu-label">
+                        RISC PROCESSOR
+                    </div>
+
+                    <div class="cpu-core">
+                        CORE
+                    </div>
+
+                </div>
+
+
+                <div class="cpu-stages">
+
+                    <div class="cpu-stage">
+                        <b>IF</b>
+                        <small>FETCH</small>
+                    </div>
+
+                    <div class="cpu-stage">
+                        <b>ID</b>
+                        <small>DECODE</small>
+                    </div>
+
+                    <div class="cpu-stage ex">
+                        <b>EX</b>
+                        <small>EXECUTE</small>
+                    </div>
+
+                    <div class="cpu-stage">
+                        <b>MEM</b>
+                        <small>MEMORY</small>
+                    </div>
+
+                    <div class="cpu-stage">
+                        <b>WB</b>
+                        <small>WRITE</small>
+                    </div>
+
+                </div>
+
+
+                <div class="cpu-circuit">
+
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+
+                </div>
+
+            </div>
+
+
+            <div class="floating-chip chip1">
+                RAW HAZARD
+            </div>
+
+            <div class="floating-chip chip2">
+                L1 CACHE
+            </div>
+
+            <div class="floating-chip chip3">
+                FORWARDING
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         PROBLEM STATEMENT
+    ========================================== -->
+
+    <section id="problem" class="section">
+
+        <div class="section-title">
+
+            <span>01 / PROBLEM STATEMENT</span>
+
+            <h2>
+                Processor Design
+                <strong>Challenge</strong>
+            </h2>
+
+        </div>
+
+
+        <div class="problem-card">
+
+            <div class="problem-icon">
+                ⚡
+            </div>
+
+
+            <div>
+
+                <h3>
+                    RISC Pipeline & Cache Performance Problem
+                </h3>
+
+                <p>
+                    A processor design team is developing a 5-stage
+                    RISC pipeline consisting of Instruction Fetch (IF),
+                    Instruction Decode (ID), Execute (EX), Memory Access
+                    (MEM), and Write Back (WB).
+                </p>
+
+                <p>
+                    The processor must correctly identify and handle
+                    Read After Write (RAW) dependencies between
+                    instructions. The design must analyze dependent
+                    instructions, including a load-use hazard such as
+                    LOAD R1, 0(R2) followed by ADD R4, R1, R5.
+                </p>
+
+                <p>
+                    A Hazard Detection Unit must identify dependencies
+                    by comparing source and destination registers.
+                    EX/MEM-to-EX and MEM/WB-to-EX forwarding paths are
+                    required to reduce unnecessary stalls.
+                </p>
+
+                <p>
+                    The system also integrates an L1 cache into the
+                    MEM stage to study cache hits, cache misses,
+                    CPI, pipeline efficiency, speedup and throughput.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         PIPELINE
+    ========================================== -->
+
+    <section id="pipeline" class="section dark-section">
+
+        <div class="section-title">
+
+            <span>02 / PROCESSOR ARCHITECTURE</span>
+
+            <h2>
+                Five Stage
+                <strong>RISC Pipeline</strong>
+            </h2>
+
+        </div>
+
+
+        <div class="pipeline-container">
+
+            <div class="pipeline-stage">
+
+                <div class="stage-number">01</div>
+
+                <h3>IF</h3>
+
+                <p>Instruction Fetch</p>
+
+                <small>
+                    PC → Instruction Memory
+                </small>
+
+            </div>
+
+
+            <div class="pipeline-arrow">
+                →
+            </div>
+
+
+            <div class="pipeline-stage">
+
+                <div class="stage-number">02</div>
+
+                <h3>ID</h3>
+
+                <p>Instruction Decode</p>
+
+                <small>
+                    Register Read
+                </small>
+
+            </div>
+
+
+            <div class="pipeline-arrow">
+                →
+            </div>
+
+
+            <div class="pipeline-stage">
+
+                <div class="stage-number">03</div>
+
+                <h3>EX</h3>
+
+                <p>Execute</p>
+
+                <small>
+                    ALU Operation
+                </small>
+
+            </div>
+
+
+            <div class="pipeline-arrow">
+                →
+            </div>
+
+
+            <div class="pipeline-stage">
+
+                <div class="stage-number">04</div>
+
+                <h3>MEM</h3>
+
+                <p>Memory Access</p>
+
+                <small>
+                    L1 Cache
+                </small>
+
+            </div>
+
+
+            <div class="pipeline-arrow">
+                →
+            </div>
+
+
+            <div class="pipeline-stage">
+
+                <div class="stage-number">05</div>
+
+                <h3>WB</h3>
+
+                <p>Write Back</p>
+
+                <small>
+                    Register Update
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Instructions -->
+
+        <div class="instruction-panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    Instruction Sequence
+                </h3>
+
+                <span>
+                    5 INSTRUCTIONS
+                </span>
+
+            </div>
+
+
+            <div class="instruction-code">
+
+                <div>
+                    <span>I1</span>
+                    <code>LOAD R1, 0(R2)</code>
+                </div>
+
+                <div>
+                    <span>I2</span>
+                    <code>ADD R4, R1, R5</code>
+                </div>
+
+                <div>
+                    <span>I3</span>
+                    <code>SUB R6, R4, R7</code>
+                </div>
+
+                <div>
+                    <span>I4</span>
+                    <code>AND R8, R6, R9</code>
+                </div>
+
+                <div>
+                    <span>I5</span>
+                    <code>OR R10, R8, R11</code>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         HAZARDS
+    ========================================== -->
+
+    <section id="hazards" class="section">
+
+        <div class="section-title">
+
+            <span>03 / HAZARD DETECTION</span>
+
+            <h2>
+                RAW Hazard
+                <strong>Analysis</strong>
+            </h2>
+
+        </div>
+
+
+        <div class="hazard-grid">
+
+
+            <div class="hazard-card danger">
+
+                <div class="hazard-top">
+                    <span class="status-dot"></span>
+                    LOAD-USE HAZARD
+                </div>
+
+                <h3>
+                    I1 → I2
+                </h3>
+
+                <p>
+                    LOAD produces R1 while ADD immediately
+                    requires R1 as a source operand.
+                </p>
+
+                <div class="dependency">
+                    R1
+                    <span>→</span>
+                    R1
+                </div>
+
+                <strong>
+                    1 CYCLE STALL REQUIRED
+                </strong>
+
+            </div>
+
+
+
+            <div class="hazard-card">
+
+                <div class="hazard-top">
+                    <span class="status-dot blue"></span>
+                    RAW DEPENDENCY
+                </div>
+
+                <h3>
+                    I2 → I3
+                </h3>
+
+                <p>
+                    ADD produces R4 and the following SUB
+                    instruction consumes R4.
+                </p>
+
+                <div class="dependency">
+                    R4
+                    <span>→</span>
+                    R4
+                </div>
+
+                <strong>
+                    EX/MEM → EX
+                </strong>
+
+            </div>
+
+
+
+            <div class="hazard-card">
+
+                <div class="hazard-top">
+                    <span class="status-dot blue"></span>
+                    RAW DEPENDENCY
+                </div>
+
+                <h3>
+                    I3 → I4
+                </h3>
+
+                <p>
+                    SUB produces R6 and AND consumes
+                    R6 in its EX stage.
+                </p>
+
+                <div class="dependency">
+                    R6
+                    <span>→</span>
+                    R6
+                </div>
+
+                <strong>
+                    EX/MEM → EX
+                </strong>
+
+            </div>
+
+
+
+            <div class="hazard-card">
+
+                <div class="hazard-top">
+                    <span class="status-dot blue"></span>
+                    RAW DEPENDENCY
+                </div>
+
+                <h3>
+                    I4 → I5
+                </h3>
+
+                <p>
+                    AND produces R8 and OR consumes
+                    R8 in the following instruction.
+                </p>
+
+                <div class="dependency">
+                    R8
+                    <span>→</span>
+                    R8
+                </div>
+
+                <strong>
+                    EX/MEM → EX
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Hazard Unit -->
+
+        <div class="architecture-box">
+
+            <div class="panel-header">
+
+                <h3>
+                    Hazard Detection Unit
+                </h3>
+
+                <span>
+                    RAW COMPARATOR
+                </span>
+
+            </div>
+
+
+            <div class="block-diagram">
+
+                <div class="diagram-block">
+
+                    <b>ID/EX</b>
+
+                    <small>
+                        Rs1 / Rs2
+                    </small>
+
+                </div>
+
+
+                <div class="diagram-arrow">
+                    →
+                </div>
+
+
+                <div class="diagram-block detector">
+
+                    <b>HAZARD</b>
+
+                    <small>
+                        DETECTION UNIT
+                    </small>
+
+                </div>
+
+
+                <div class="diagram-arrow">
+                    →
+                </div>
+
+
+                <div class="diagram-block">
+
+                    <b>CONTROL</b>
+
+                    <small>
+                        STALL / BUBBLE
+                    </small>
+
+                </div>
+
+
+                <div class="diagram-arrow">
+                    ←
+                </div>
+
+
+                <div class="diagram-block">
+
+                    <b>EX/MEM</b>
+
+                    <small>
+                        Rd
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="control-signals">
+
+                <div>
+
+                    <b>PCWrite</b>
+
+                    <span>
+                        0 = Stall
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <b>IF/IDWrite</b>
+
+                    <span>
+                        0 = Hold
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <b>Control MUX</b>
+
+                    <span>
+                        0 = Bubble
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         FORWARDING
+    ========================================== -->
+
+    <section id="forwarding" class="section dark-section">
+
+        <div class="section-title">
+
+            <span>04 / BYPASS NETWORK</span>
+
+            <h2>
+                Forwarding &
+                <strong>Data Bypass</strong>
+            </h2>
+
+        </div>
+
+
+        <div class="forwarding-visual">
+
+            <div class="register-box">
+
+                REGISTER
+                <small>FILE</small>
+
+            </div>
+
+
+            <div class="forward-path path1">
+
+                <span>
+                    EX/MEM → EX
+                </span>
+
+            </div>
+
+
+            <div class="forward-path path2">
+
+                <span>
+                    MEM/WB → EX
+                </span>
+
+            </div>
+
+
+            <div class="alu-box">
+
+                ALU
+                <small>EXECUTE</small>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="forward-cards">
+
+
+            <div class="forward-card">
+
+                <div class="card-number">
+                    01
+                </div>
+
+                <h3>
+                    EX/MEM → EX
+                </h3>
+
+                <p>
+                    The ALU result from the previous instruction
+                    is forwarded directly to the current instruction's
+                    EX-stage ALU input.
+                </p>
+
+            </div>
+
+
+            <div class="forward-card">
+
+                <div class="card-number">
+                    02
+                </div>
+
+                <h3>
+                    MEM/WB → EX
+                </h3>
+
+                <p>
+                    A result stored in the MEM/WB pipeline register
+                    can be bypassed directly to the EX stage.
+                </p>
+
+            </div>
+
+
+            <div class="forward-card warning-card">
+
+                <div class="card-number">
+                    03
+                </div>
+
+                <h3>
+                    ⚠ LOAD-USE
+                </h3>
+
+                <p>
+                    Forwarding cannot completely eliminate the
+                    immediate load-use dependency.
+                </p>
+
+                <strong>
+                    MINIMUM SOLUTION: 1-CYCLE STALL
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         TIMING DIAGRAM
+    ========================================== -->
+
+    <section class="section">
+
+        <div class="section-title">
+
+            <span>05 / PIPELINE TIMING</span>
+
+            <h2>
+                Cycle-by-Cycle
+                <strong>Execution</strong>
+            </h2>
+
+        </div>
+
+
+        <div class="diagram-tabs">
+
+            <button class="active"
+                onclick="showTiming('forwarding', this)">
+                WITH FORWARDING
+            </button>
+
+            <button
+                onclick="showTiming('stall', this)">
+                STALL-ONLY
+            </button>
+
+        </div>
+
+
+        <div class="timing-table" id="timingTable">
+
+            <!-- Generated by JavaScript -->
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         CACHE
+    ========================================== -->
+
+    <section id="cache" class="section dark-section">
+
+        <div class="section-title">
+
+            <span>06 / MEMORY HIERARCHY</span>
+
+            <h2>
+                L1 Cache
+                <strong>Architecture</strong>
+            </h2>
+
+        </div>
+
+
+        <div class="cache-design">
+
+
+            <div class="cache-3d">
+
+                <div class="cache-layer layer4"></div>
+                <div class="cache-layer layer3"></div>
+                <div class="cache-layer layer2"></div>
+
+                <div class="cache-face">
+
+                    <strong>
+                        L1
+                    </strong>
+
+                    <small>
+                        DATA CACHE
+                    </small>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="cache-info">
+
+                <div class="cache-item">
+
+                    <span>
+                        CACHE SIZE
+                    </span>
+
+                    <strong>
+                        32 KB
+                    </strong>
+
+                </div>
+
+
+                <div class="cache-item">
+
+                    <span>
+                        MAPPING
+                    </span>
+
+                    <strong>
+                        2-WAY SET ASSOCIATIVE
+                    </strong>
+
+                </div>
+
+
+                <div class="cache-item">
+
+                    <span>
+                        REPLACEMENT
+                    </span>
+
+                    <strong>
+                        LRU
+                    </strong>
+
+                </div>
+
+
+                <div class="cache-item">
+
+                    <span>
+                        HIT LATENCY
+                    </span>
+
+                    <strong>
+                        1 CYCLE
+                    </strong>
+
+                </div>
+
+
+                <div class="cache-item">
+
+                    <span>
+                        MISS PENALTY
+                    </span>
+
+                    <strong>
+                        10 CYCLES
+                    </strong>
+
+                </div>
+
+
+                <div class="cache-item">
+
+                    <span>
+                        ASSUMED HIT RATE
+                    </span>
+
+                    <strong>
+                        95%
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         PERFORMANCE
+    ========================================== -->
+
+    <section id="performance" class="section">
+
+        <div class="section-title">
+
+            <span>07 / PERFORMANCE ANALYSIS</span>
+
+            <h2>
+                CPI &
+                <strong>Speedup</strong>
+            </h2>
+
+        </div>
+
+
+        <div class="metrics">
+
+
+            <div class="metric">
+
+                <span>
+                    BASE CPI
+                </span>
+
+                <strong id="baseCpi">
+                    1.00
+                </strong>
+
+            </div>
+
+
+            <div class="metric danger-metric">
+
+                <span>
+                    STALL-ONLY CPI
+                </span>
+
+                <strong id="stallCpi">
+                    1.40
+                </strong>
+
+            </div>
+
+
+            <div class="metric">
+
+                <span>
+                    FORWARDING CPI
+                </span>
+
+                <strong id="forwardCpi">
+                    1.20
+                </strong>
+
+            </div>
+
+
+            <div class="metric">
+
+                <span>
+                    CACHE-MISS CPI
+                </span>
+
+                <strong id="cacheCpi">
+                    1.30
+                </strong>
+
+            </div>
+
+
+            <div class="metric highlight">
+
+                <span>
+                    SPEEDUP
+                </span>
+
+                <strong id="speedup">
+                    1.17×
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Simulation -->
+
+        <div class="performance-panel">
+
+            <div class="simulation-status">
+
+                <div class="status-ring">
+                    ●
+                </div>
+
+                <div>
+
+                    <h3>
+                        Simulation Console
+                    </h3>
+
+                    <span id="simulationState">
+                        SYSTEM READY
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div id="simulationOutput">
+
+                <p>
+                    Configure the processor architecture and
+                    press <b>RUN SIMULATION</b>.
+                </p>
+
+            </div>
+
+
+            <button class="primary-btn"
+                onclick="runSimulation()">
+
+                ▶ RUN PERFORMANCE ANALYSIS
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         GENERALIZATION
+    ========================================== -->
+
+    <section class="section dark-section">
+
+        <div class="section-title">
+
+            <span>08 / GENERALIZATION</span>
+
+            <h2>
+                Representative
+                <strong>Workload</strong>
+            </h2>
+
+        </div>
+
+
+        <div class="general-grid">
+
+
+            <div class="general-card">
+
+                <span>
+                    PROGRAM LENGTH
+                </span>
+
+                <strong>
+                    1000
+                </strong>
+
+                <p>
+                    Representative instruction count
+                    for performance estimation.
+                </p>
+
+            </div>
+
+
+            <div class="general-card">
+
+                <span>
+                    DEPENDENT PAIRS
+                </span>
+
+                <strong>
+                    20%
+                </strong>
+
+                <p>
+                    Instructions affected by RAW
+                    dependencies.
+                </p>
+
+            </div>
+
+
+            <div class="general-card">
+
+                <span>
+                    CACHE HIT RATE
+                </span>
+
+                <strong>
+                    95%
+                </strong>
+
+                <p>
+                    High L1 cache hit rate minimizes
+                    memory-related stalls.
+                </p>
+
+            </div>
+
+
+            <div class="general-card">
+
+                <span>
+                    ESTIMATED THROUGHPUT
+                </span>
+
+                <strong>
+                    0.93
+                </strong>
+
+                <p>
+                    Approximate instructions completed
+                    per cycle.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         SDG 9
+    ========================================== -->
+
+    <section class="sdg-section">
+
+        <div>
+
+            <span>
+                SDG 9
+            </span>
+
+            <h2>
+                Industry, Innovation
+                <br>
+                & Infrastructure
+            </h2>
+
+        </div>
+
+
+        <p>
+
+            This project demonstrates processor optimization,
+            efficient computing infrastructure and innovative
+            hardware architecture techniques. Improving pipeline
+            utilization, forwarding coverage and cache efficiency
+            contributes to faster and more efficient computing
+            systems.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =========================================
+         FOOTER
+    ========================================== -->
+
+    <footer>
+
+        <div class="logo">
+            <span>◈</span> RISC<span>SIM</span>
+        </div>
+
+
+        <p>
+            RISC Pipeline & Cache Performance Simulator
+        </p>
+
+
+        <p>
+            Computer Architecture Project • 2026
+        </p>
+
+    </footer>
+
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
